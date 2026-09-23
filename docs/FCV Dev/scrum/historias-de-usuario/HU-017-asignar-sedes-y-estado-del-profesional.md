@@ -51,5 +51,6 @@ Las dos sedes son catálogo fijo. La habilitación es requisito de agenda.
 | CA-03 / DoD | Pendiente | — | — |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Asignación de sedes y activación/desactivación implementadas en backend y UI ADMIN; integración pendiente.
 ## Notas y decisiones
 - No se define el efecto retroactivo sobre citas existentes al desactivar; debe mantener integridad PRD.

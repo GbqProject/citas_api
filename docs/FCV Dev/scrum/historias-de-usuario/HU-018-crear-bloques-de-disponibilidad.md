@@ -51,5 +51,6 @@ Puede crear múltiples bloques (por ejemplo mañana/tarde); cada uno se discreti
 | CA-03 / DoD | Pendiente | — | — |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Bloques y slots se crean con contrato `date` + `startTime`/`endTime`; UI PROFESSIONAL alineada; integración pendiente.
 ## Notas y decisiones
 - La representación interna de slots se decide en [[HU-002-modelar-persistencia-3fn]].

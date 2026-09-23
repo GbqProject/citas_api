@@ -51,5 +51,6 @@ La relación es N:M; se requiere exactamente la marcación primaria que indique 
 | CA-03 / DoD | Pendiente | — | — |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Asignación de especialidades y primaria implementada en servicio, endpoint y UI ADMIN; integración pendiente.
 ## Notas y decisiones
 - La unicidad exacta de primaria se justificará en modelo/contrato.

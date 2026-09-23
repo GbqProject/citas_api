@@ -51,5 +51,6 @@ Los profesionales son creados por ADMIN y todos los datos del laboratorio son si
 | CA-03 / DoD | Pendiente | — | — |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Alta y listado ADMIN de profesionales implementados; integración persistente pendiente por Docker/Testcontainers.
 ## Notas y decisiones
 - Los campos de identidad se concretan en contrato, sin contradecir RF-01/RF-07.

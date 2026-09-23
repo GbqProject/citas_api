@@ -52,5 +52,6 @@ La disponibilidad se debe revalidar en la confirmación para impedir doble reser
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
 - 2026-09-23 — PASS: prueba REST concurrente sobre MySQL 8.4 con resultados registrados `201` y `409`; una única cita `APPROVED`.
+- 2026-09-23 — El contrato de cliente ahora consume la respuesta autoritativa `{id,status,startAt,endAt}`; la ejecución completa debe repetirse cuando Testcontainers tenga Docker accesible.
 ## Notas y decisiones
 - Medicina General depende de la especialidad/catálogo acordado.

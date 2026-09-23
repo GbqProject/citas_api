@@ -51,6 +51,7 @@ La solicitud nace `REQUESTED` y retiene slots para evitar doble reserva.
 | CA-03 / DoD | PASS | Prueba especializada + suite Maven completa | No existen dos citas asociadas a los mismos slots; la suite termina sin fallos. |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Flujo `REQUESTED`, cliente de reserva y estados de solicitud implementados; integración completa pendiente por Docker/Testcontainers.
 - 2026-09-23 — PASS: retención especializada `REQUESTED` y protección de doble reserva verificada sobre MySQL 8.4.
 ## Notas y decisiones
 - La reserva queda liberada al rechazo mediante [[HU-024-resolver-solicitud-especializada]].

@@ -52,5 +52,6 @@ El profesional no puede sobrescribir la duración de una especialidad.
 | CA-03 / DoD | Pendiente | — | — |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Backend y UI ADMIN para especialidades y duración implementados; falta verificación de integración con Docker.
 ## Notas y decisiones
 - Medicina General debe estar representada por el catálogo aprobado.

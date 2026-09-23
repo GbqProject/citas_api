@@ -53,6 +53,7 @@ Roles, estados de cita, estados de reprogramación, regímenes y sedes son de so
 | CA-03 / DoD | Pendiente | — | — |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Catálogos autenticados y endpoint público de planes activos implementados; la verificación REST completa queda pendiente de integración ejecutable.
 ## Notas y decisiones
 - Los valores de estados deberán alinearse con el catálogo fijo aprobado.
 - 2026-09-17: se aprobó únicamente el seed de roles `USER`, `PROFESSIONAL`, `ADMIN` como dependencia de identidad. La publicación REST de roles y los demás catálogos quedan pendientes; HU-003 conserva su estado.

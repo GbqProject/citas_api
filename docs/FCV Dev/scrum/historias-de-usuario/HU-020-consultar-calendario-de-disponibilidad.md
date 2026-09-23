@@ -50,5 +50,6 @@ La agenda de disponibilidad no sustituye la agenda visible de citas aprobadas.
 | CA-03 / DoD | Pendiente | — | — |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Consulta de bloques propios y disponibilidad agrupada implementada; falta verificación REST/persistencia con Docker.
 ## Notas y decisiones
 - El formato visual queda bajo el diseño aprobado.

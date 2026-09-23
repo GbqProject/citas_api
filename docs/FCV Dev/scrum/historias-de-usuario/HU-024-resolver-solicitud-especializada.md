@@ -46,10 +46,11 @@ El rechazo exige motivo; aprobar cambia a `APPROVED`, rechazar a `REJECTED` y li
 ## Evidencia de validación
 | Elemento | Resultado | Evidencia | Observación |
 |---|---|---|---|
-| CA-01 | Pendiente | — | — |
-| CA-02 | Pendiente | — | — |
-| CA-03 / DoD | Pendiente | — | — |
+| CA-01 | Implementado, integración pendiente | `SchedulingService.decide`; `DashboardScreen` | Aprobar cambia a `APPROVED` y conserva slots |
+| CA-02 | Implementado, integración pendiente | `SchedulingService.decide`; `SchedulingServiceIntegrationTest` | Rechazo exige motivo, registra ADMIN y libera slots |
+| CA-03 / DoD | Implementado en servicio/cliente, integración pendiente | `SchedulingController`; `schedulingErrorMessage` | Falta ejecutar REST/Testcontainers con Docker accesible |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Se implementó la decisión ADMIN en backend y UI; la validación dinámica queda pendiente por la indisponibilidad del daemon Docker para Testcontainers.
 ## Notas y decisiones
 - La bandeja se especifica en [[HU-031-consultar-bandeja-administrativa]].

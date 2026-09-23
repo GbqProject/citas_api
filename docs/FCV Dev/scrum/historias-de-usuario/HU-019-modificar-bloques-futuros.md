@@ -51,5 +51,6 @@ El PRD limita la modificación/eliminación a bloques futuros sin citas comprome
 | CA-03 / DoD | Pendiente | — | — |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Modificación/eliminación de bloques futuros implementadas con validación de solapamiento y citas comprometidas; integración pendiente.
 ## Notas y decisiones
 - “Cita comprometida” se verificará contra estados/retenciones aprobados.
