@@ -1,46 +1,52 @@
-# AGENTS.md — `citas-api`
+# `citas-api` — instrucciones del agente backend
 
-## Alcance y estado comprobado
+## Estado comprobado del repositorio
 
-Este repositorio contiene la API REST del laboratorio ficticio de citas FCV. La interfaz vive en el repositorio independiente `../citas-web`; esta API no se acopla a React ni Angular y no crea Express ni BFF.
+Al 2026-09-22 este repositorio contiene el incremento de identidad de HU-005/006/007 en `develop`, con Spring Boot, Flyway y pruebas. No asumir contratos adicionales, endpoints, DTOs, tablas o convenciones hasta que existan o estén aprobados.
 
-El proyecto usa Java 21, Maven y Spring Boot 3.5.0. `pom.xml` incluye Web, Validation, Security, OAuth2 JOSE, Data JPA, MySQL, Flyway y Actuator. La configuración se encuentra en `src/main/resources/application.yml`; su conexión MySQL, CORS y parámetros de JWT se resuelven por variables de entorno.
+La fuente funcional es `../PRD.md`; las restricciones de arquitectura y plataforma están en `../RESTRICCIONES_TECNICAS.md`. Antes de una tarea, consultar el índice de la Wiki global en `docs/FCV Dev/llm-wiki/wiki/index.md`, pero no crear ni mantener una Wiki local desde este agente.
 
-El vertical existente corresponde a autenticación:
+## Responsabilidad exclusiva
 
-- `POST /api/v1/auth/register`, `/login`, `/refresh` y `/logout`;
-- `AuthService` y los puertos `AuthPersistencePort` / `AccessTokenPort`;
-- `JdbcAuthPersistenceAdapter`, `JwtAccessTokenAdapter`, `SecurityConfig` y validación HTTP;
-- `V1__initial_schema.sql`, con tablas de identidad, refresh tokens y el modelo inicial 3FN;
-- pruebas unitarias de servicio de autenticación y emisión JWT.
+Este repositorio contiene el backend Java 21 con Spring Boot 3.5.x, Maven, REST/JSON, Spring Security/JWT access-refresh, MySQL 8.4, Spring Data JPA, Flyway, reglas de negocio, contratos backend y pruebas. No editar `../citas-web`.
 
-Las HU-001 y HU-002 están **En validación**: sus criterios y Definition of Done no se consideran cerrados sin nueva evidencia. HU-016 es cross-repo y no autoriza cambios en `citas-web` desde aquí.
+Los workflows n8n se versionan exclusivamente como JSON en `automations/n8n/`; no incluir credenciales en ellos.
 
-## Límites arquitectónicos
+## Arquitectura obligatoria
 
-- `domain/` contiene conceptos e invariantes del negocio: no debe depender de Spring, JPA, HTTP, JDBC ni DTOs.
-- `application/` contiene casos de uso y puertos. La lógica de reglas del PRD se implementa aquí o en dominio, nunca en un controlador ni en SQL de un adaptador.
-- `infrastructure/adapters/in/rest/` traduce HTTP/JSON, validación y respuestas de error; no concentra reglas de negocio.
-- `infrastructure/adapters/out/` implementa puertos de persistencia o integraciones. El adaptador actual de autenticación usa `JdbcTemplate`; nuevas decisiones de persistencia deben respetar la restricción de Spring Data JPA o dejar su justificación explícita en el cambio.
-- Los contratos REST se diseñan con la HU aprobada, sus criterios de aceptación y las reglas aplicables del `../PRD.md`. Un cambio observable de contrato requiere coordinación y evidencia en el consumidor cuando exista.
+- El dominio no depende de Spring, JPA, HTTP ni de detalles de infraestructura.
+- Los casos de uso y la coordinación de reglas viven en aplicación.
+- Los puertos expresan dependencias entre aplicación y el exterior.
+- REST y persistencia son adaptadores; los controladores traducen HTTP y no concentran negocio.
+- No acoplar el backend a React o Angular.
 
-## Datos, seguridad y operaciones
+El diseño concreto de paquetes debe seguir esta separación una vez creado el proyecto, sin inventar una estructura antes de inspeccionar el código existente.
 
-- Toda evolución del esquema se realiza con una migración Flyway nueva en `src/main/resources/db/migration/`; no editar una migración aplicada ni sustituirla con SQL manual.
-- Mantener 3FN, seeds solo para catálogos fijos y datos exclusivamente sintéticos. Para reservas futuras, preservar las reglas de transacción y no doble reserva del PRD.
-- Passwords usan hash adaptativo. Los refresh tokens se persisten únicamente como hash; access y refresh son distintos.
-- Secretos, contraseñas y tokens proceden exclusivamente del entorno. No abrir, imprimir ni versionar `.env`; solo se puede actualizar `.env.example` con valores no sensibles cuando sea necesario.
-- No registrar passwords, tokens, hashes sensibles ni datos personales innecesarios. Mantener CORS explícito, validación server-side, autorización por rol y ownership conforme se incorporen endpoints.
+## Flujo por historia de usuario
 
-## Flujo de cambio
+1. Localizar la HU aprobada y su DoD en `docs/FCV Dev/scrum/`. Si no existen, detener la implementación y solicitar o producir la especificación mediante el flujo autorizado.
+2. Identificar RF/RN del PRD, reglas de autorización/ownership, datos, puertos, adaptadores y contrato REST afectados.
+3. Antes de editar, presentar un plan con los archivos backend, migraciones, contrato y pruebas que cambiarán.
+4. Implementar el mínimo coherente y mantener las dependencias dirigidas hacia el dominio/aplicación.
+5. Ejecutar las pruebas relevantes: dominio, aplicación y, cuando aplique, integración REST/persistencia.
+6. Verificar arquitectura y DoD; informar evidencia ejecutada y lo no verificado.
 
-1. Localizar la HU aprobada en `docs/wiki/scrum/historias-de-usuario/`, revisar criterios, DoD y el PRD/restricciones aplicables.
-2. Identificar los contratos, reglas, puertos, adaptadores, migraciones y pruebas afectados; proponer el plan antes de editar.
-3. Implementar el mínimo coherente dentro de este repositorio, sin modificar `../citas-web`.
-4. Ejecutar `mvn test` y las pruebas de integración REST/persistencia que correspondan al alcance. Informar explícitamente lo que no se haya podido verificar.
-5. Contrastar el resultado con la DoD. No alterar el estado de HU ni mantener una wiki paralela: `docs/wiki/llm-wiki/` es memoria global del orquestador.
+## Datos, migraciones y seguridad
 
-## Git y automatizaciones
+- Todo cambio de esquema requiere migración Flyway nueva, justificación de 3FN, cardinalidades e índices relevantes; no editar una migración ya aplicada.
+- Cargar por seed los catálogos fijos que el PRD exige, una vez sus valores estén definidos/aprobados.
+- Preservar las reglas de reserva, slots consecutivos, transiciones explícitas y auditoría del PRD.
+- Secretos solo por variables de entorno; `.env.example` nunca contiene valores reales.
+- Hash adaptativo para contraseñas; no registrar contraseñas, JWT, refresh tokens ni tokens de recuperación.
+- Aplicar validación server-side, CORS explícito, roles y ownership.
+- Usar únicamente datos sintéticos del laboratorio.
 
-- `main` es estable y `develop` es la rama de trabajo definida por el workspace; no reescribir historial.
-- Los workflows n8n futuros se versionan como JSON en `automations/n8n/`; no incluir credenciales.
+## Contratos y coordinación
+
+- El contrato REST de HU-005/006/007 está aprobado bajo `/api/v1/auth`; los demás contratos siguen pendientes y no se infieren desde pantallas.
+- Todo cambio contractual requiere coordinación con el orquestador y evidencia en backend y frontend antes de declararlo completado.
+- Registrar decisiones y contratos compartidos en la Wiki global mediante el orquestador, no desde este agente.
+
+## Git
+
+`main` es estable y `develop` es la rama de trabajo definida por el workspace. Actualmente solo existe `main`; no crear ni cambiar ramas como efecto incidental de una tarea de documentación. Preservar cambios no relacionados y no reescribir historial.
