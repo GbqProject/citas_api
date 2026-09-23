@@ -15,3 +15,7 @@ El catálogo de ocho subagentes fue versionado en `docs/FCV Dev/subagents/` y en
 ## HECHO — 2026-09-22 · Integración de autenticación
 
 El prototipo `citas-web/portal-de-citas.zip` se importó como React/Vite y se integró con HU-005/006/007. La comprobación usa MySQL persistente, CORS explícito, registro/login/refresh/logout reales y pruebas de frontend. HU-033 permanece en progreso porque las pantallas de perfil, agenda y roles posteriores siguen fuera del corte de autenticación.
+
+## HECHO — 2026-09-23 · Afiliación opcional en registro
+
+HU-011 quedó implementada en ambos repositorios: el cliente carga `GET /api/v1/public/insurance-plans` antes del login, el registro acepta `insurancePlanId` opcional y el backend valida vigencia y persiste únicamente la FK en `user_insurance_affiliations`. Las pruebas frontend pasaron; las pruebas backend con Testcontainers compilan, pero su ejecución requiere acceso al Docker daemon desde el entorno Maven.

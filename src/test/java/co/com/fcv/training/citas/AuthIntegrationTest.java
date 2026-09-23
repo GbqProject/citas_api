@@ -67,6 +67,21 @@ class AuthIntegrationTest {
         mvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON).content(registration(email, doc)))
                 .andExpect(status().isCreated());
     }
+    @Test void activePlansArePublicAndRegistrationWithoutPlanHasNoAffiliation() throws Exception {
+        mvc.perform(get("/api/v1/public/insurance-plans"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").exists())
+                .andExpect(jsonPath("$[0].name").exists());
+
+        String email = uniqueEmail();
+        String body = mvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
+                        .content(registration(email, uniqueDoc())))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        Long userId = mapper.readTree(body).get("id").asLong();
+        assertThat(jdbc.queryForObject("select count(*) from user_insurance_affiliations where user_id=?", Integer.class, userId)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from information_schema.columns where table_schema=database() and table_name='users' and column_name in ('eps_name','plan_name')", Integer.class)).isZero();
+    }
+
     @Test void registrationCreatesOptionalCurrentInsuranceAffiliation() throws Exception {
         Long planId = jdbc.queryForObject("select id from eps_plans where active=true limit 1", Long.class);
         String email = uniqueEmail();
@@ -75,6 +90,28 @@ class AuthIntegrationTest {
                 """.formatted(uniqueDoc(), email, planId))).andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
         Long userId = mapper.readTree(body).get("id").asLong();
         assertThat(jdbc.queryForObject("select count(*) from user_insurance_affiliations where user_id=? and plan_id=? and is_current=true", Integer.class, userId, planId)).isEqualTo(1);
+    }
+
+    @Test void registrationRejectsMissingOrInactivePlanWithoutPartialAccount() throws Exception {
+        String missingEmail = uniqueEmail();
+        mvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"firstName":"Ana","lastName":"Missing","documentType":"CC","documentNumber":"%s","email":"%s","phone":"3000000000","password":"SyntheticPass123!","insurancePlanId":999999999}
+                        """.formatted(uniqueDoc(), missingEmail)))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.detail").value("Datos inválidos"));
+        assertThat(jdbc.queryForObject("select count(*) from users where email=?", Integer.class, missingEmail)).isZero();
+
+        Long planId = jdbc.queryForObject("select id from eps_plans where active=true limit 1", Long.class);
+        jdbc.update("update eps_plans set active=false where id=?", planId);
+        try {
+            String inactiveEmail = uniqueEmail();
+            mvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                            {"firstName":"Ana","lastName":"Inactive","documentType":"CC","documentNumber":"%s","email":"%s","phone":"3000000000","password":"SyntheticPass123!","insurancePlanId":%d}
+                            """.formatted(uniqueDoc(), inactiveEmail, planId)))
+                    .andExpect(status().isBadRequest()).andExpect(jsonPath("$.detail").value("Datos inválidos"));
+            assertThat(jdbc.queryForObject("select count(*) from users where email=?", Integer.class, inactiveEmail)).isZero();
+        } finally {
+            jdbc.update("update eps_plans set active=true where id=?", planId);
+        }
     }
     private org.springframework.test.web.servlet.ResultActions login(String email, String password) throws Exception {
         return mvc.perform(post("/api/v1/auth/login").header("X-Requested-With", "XMLHttpRequest")

@@ -46,10 +46,11 @@ La solicitud nace `REQUESTED` y retiene slots para evitar doble reserva.
 ## Evidencia de validación
 | Elemento | Resultado | Evidencia | Observación |
 |---|---|---|---|
-| CA-01 | Pendiente | — | — |
-| CA-02 | Pendiente | — | — |
-| CA-03 / DoD | Pendiente | — | — |
+| CA-01 | PASS | `SchedulingConcurrencyIntegrationTest.specializedReservationIsRequestedAndRetainsAllSlotsWithoutDuplicateAppointment` | La solicitud queda `REQUESTED`, retiene sus 2 slots y registra historial `USER`. |
+| CA-02 | PASS | `SchedulingConcurrencyIntegrationTest.concurrentGeneralReservationsProduceOneApprovedAndOneHttp409` | La toma atómica de slots impide la segunda reserva. |
+| CA-03 / DoD | PASS | Prueba especializada + suite Maven completa | No existen dos citas asociadas a los mismos slots; la suite termina sin fallos. |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — PASS: retención especializada `REQUESTED` y protección de doble reserva verificada sobre MySQL 8.4.
 ## Notas y decisiones
 - La reserva queda liberada al rechazo mediante [[HU-024-resolver-solicitud-especializada]].

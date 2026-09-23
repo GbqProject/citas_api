@@ -29,9 +29,9 @@ EPS y planes son configurables; régimen es catálogo fijo.
 ## Esfuerzo
 **Nivel:** Medio. **Justificación de dificultad:** enlaza catálogos configurables/fijos, integridad y ownership.
 ## Tareas de desarrollo
-- [ ] **T-01 — Publicar planes activos.** Dificultad: Medio. Usar la relación normalizada EPS/plan/régimen.
-- [ ] **T-02 — Extender registro opcional.** Dificultad: Alto. Validar plan activo y crear la afiliación sin duplicar textos de catálogo.
-- [ ] **T-03 — Probar selección u omisión.** Dificultad: Medio. La omisión no impide el registro ni afecta agenda.
+- [x] **T-01 — Publicar planes activos.** Dificultad: Medio. Endpoint público de solo lectura para el formulario previo a autenticación.
+- [x] **T-02 — Extender registro opcional.** Dificultad: Alto. Validar plan activo y crear la afiliación sin duplicar textos de catálogo.
+- [x] **T-03 — Probar selección u omisión.** Dificultad: Medio. La omisión no impide el registro ni afecta agenda.
 ## Criterios de aceptación
 ### CA-01 — Asociación válida
 **Dado** catálogos activos y una combinación válida, **cuando** USER guarda afiliación, **entonces** queda asociada a su perfil.
@@ -46,10 +46,13 @@ EPS y planes son configurables; régimen es catálogo fijo.
 ## Evidencia de validación
 | Elemento | Resultado | Evidencia | Observación |
 |---|---|---|---|
-| CA-01 | Pendiente | — | — |
-| CA-02 | Pendiente | — | — |
-| CA-03 / DoD | Pendiente | — | — |
+| CA-01 / objetivo | Cumple | `AuthIntegrationTest.registrationCreatesOptionalCurrentInsuranceAffiliation`; `AuthService`; `InsuranceJpaAdapter` | Plan activo asociado por FK en `user_insurance_affiliations`. |
+| Registro sin plan / objetivo | Cumple | `AuthIntegrationTest.activePlansArePublicAndRegistrationWithoutPlanHasNoAffiliation` | Registro 201 sin fila de afiliación. |
+| Plan inválido/inactivo / objetivo | Cumple | `AuthIntegrationTest.registrationRejectsMissingOrInactivePlanWithoutPartialAccount` | 400 Problem Details y sin cuenta parcial. |
+| Cliente web / objetivo | Implementado | `RegisterScreen`, `authScreens.test.tsx`, `schedulingApi.ts` | Carga endpoint público y conserva opción sin afiliación. |
+| Persistencia 3FN / objetivo | Cumple | `V2__scheduling_core.sql`; consulta de columnas en prueba | Usuario referencia afiliación; no almacena nombres EPS/plan. |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Contrato público separado aprobado e implementación cross-repo realizada; CRUD ADMIN y perfil posterior permanecen fuera de alcance.
 ## Notas y decisiones
 - La regla de vigencia de una EPS/plan se abordará con sus HU administrativas.

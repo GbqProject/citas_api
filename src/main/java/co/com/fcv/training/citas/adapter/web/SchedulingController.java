@@ -27,6 +27,7 @@ class SchedulingController {
     record DecisionRequest(@NotBlank String decision,@Size(max=500) String reason) {}
     private final SchedulingService scheduling; private final Ports.Passwords passwords;
     SchedulingController(SchedulingService scheduling, Ports.Passwords passwords){this.scheduling=scheduling;this.passwords=passwords;}
+    @GetMapping("/public/insurance-plans") List<Map<String,Object>> publicInsurancePlans(){return scheduling.catalog("plans");}
     @GetMapping("/catalogs/{catalog}") List<Map<String,Object>> catalog(@PathVariable String catalog){return scheduling.catalog(catalog);}
     @GetMapping("/admin/specialties") @PreAuthorize("hasRole('ADMIN')") List<SchedulingService.Specialty> allSpecialties(){return scheduling.specialties(false);}
     @GetMapping("/specialties") List<SchedulingService.Specialty> specialties(){return scheduling.specialties(true);}

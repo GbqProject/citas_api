@@ -46,10 +46,11 @@ La disponibilidad se debe revalidar en la confirmación para impedir doble reser
 ## Evidencia de validación
 | Elemento | Resultado | Evidencia | Observación |
 |---|---|---|---|
-| CA-01 | Pendiente | — | — |
-| CA-02 | Pendiente | — | — |
-| CA-03 / DoD | Pendiente | — | — |
+| CA-01 | PASS | `SchedulingConcurrencyIntegrationTest.concurrentGeneralReservationsProduceOneApprovedAndOneHttp409` | Una solicitud REST responde 201 y la cita queda `APPROVED`. |
+| CA-02 | PASS | `SchedulingConcurrencyIntegrationTest.concurrentGeneralReservationsProduceOneApprovedAndOneHttp409` | La segunda solicitud concurrente responde 409; solo un slot queda asociado. |
+| CA-03 / DoD | PASS | Misma prueba; suite Maven completa | Se registra historial `APPROVED`/`SYSTEM`, sin segunda cita ni doble asociación de slot. |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — PASS: prueba REST concurrente sobre MySQL 8.4 con resultados registrados `201` y `409`; una única cita `APPROVED`.
 ## Notas y decisiones
 - Medicina General depende de la especialidad/catálogo acordado.

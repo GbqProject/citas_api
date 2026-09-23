@@ -48,6 +48,8 @@ Todos los recursos S3 usan `/api/v1`, JWT access en `Authorization: Bearer` y JS
 
 `POST /auth/register` acepta `insurancePlanId` opcional; la afiliación es administrativa y no modifica las reglas de agenda. `POST /appointments` recibe `professionalId`, `locationId`, `specialtyId`, `date`, `startTime` y `reason` opcional. La API deriva la naturaleza general o especializada desde la especialidad: devuelve `APPROVED` para general y `REQUESTED` para especializada. Una decisión ADMIN recibe `APPROVE` o `REJECT`; el rechazo exige `reason`.
 
+`GET /api/v1/public/insurance-plans` es público y devuelve únicamente planes activos (`id`, `code`, `name`, `epsId`, `regimeId`) para el formulario de registro previo a la autenticación. Los demás catálogos mantienen autenticación. `POST /api/v1/auth/register` acepta `insurancePlanId` opcional como identificador entero (el cliente puede enviarlo como valor de un control HTML); si es inexistente o inactivo devuelve `400` en formato Problem Details y no deja una cuenta ni afiliación parcial.
+
 Errores de validación usan `400`; recursos o relaciones inexistentes usan `404`; rol u ownership usan `403`; slots ocupados, selección inválida o transición no permitida usan `409`. El frontend consume estas rutas directamente, sin BFF, y no guarda citas ni slots como fuente de verdad.
 
 ## DECISIÓN — 2026-09-22 · Corte web de autenticación
