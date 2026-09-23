@@ -29,9 +29,9 @@ Solo se muestran horarios que permiten todos los slots necesarios; tipo general/
 ## Esfuerzo
 **Nivel:** Alto. **Justificación de dificultad:** consulta transversal de agenda, oferta, vigencia y slots consecutivos.
 ## Tareas de desarrollo
-- [ ] **T-01 — Diseñar filtros y contrato.** Dificultad: Medio. Cubrir sede, tipo, especialidad, profesional y fecha.
-- [ ] **T-02 — Calcular opciones reservables.** Dificultad: Alto. Excluir reservas/retenciones y exigir consecutividad 60 min.
-- [ ] **T-03 — Entregar búsqueda y pruebas.** Dificultad: Alto. Probar filtros, 30/60 y oferta inactiva/no asociada.
+- [x] **T-01 — Diseñar filtros y contrato.** Dificultad: Medio. Cubrir sede, especialidad, profesional y fecha; la duración/tipo se deriva de la especialidad.
+- [x] **T-02 — Calcular opciones reservables.** Dificultad: Alto. Excluir reservas/retenciones y exigir consecutividad 60 min.
+- [ ] **T-03 — Entregar búsqueda y pruebas.** Dificultad: Alto. La implementación y las pruebas fuente están listas; queda ejecutar la integración Testcontainers en un host con Docker disponible.
 ## Criterios de aceptación
 ### CA-01 — Filtros completos
 **Dado** disponibilidad publicada, **cuando** USER filtra por cualquiera de los criterios permitidos, **entonces** recibe opciones que satisfacen los filtros combinados.
@@ -46,11 +46,12 @@ Solo se muestran horarios que permiten todos los slots necesarios; tipo general/
 ## Evidencia de validación
 | Elemento | Resultado | Evidencia | Observación |
 |---|---|---|---|
-| CA-01 | Pendiente | — | — |
-| CA-02 | Pendiente | — | — |
-| CA-03 / DoD | Pendiente | — | — |
+| CA-01 | Implementado, verificación de integración pendiente | `citas-api/src/main/java/co/com/fcv/training/citas/application/SchedulingService.java`; `citas-web/src/api/schedulingApi.ts` | Respuesta agrupada por profesional y cliente REST directo |
+| CA-02 | Implementado, verificación de integración pendiente | `SchedulingService.availability`; `SchedulingServiceIntegrationTest` | Ventanas consecutivas de 60 minutos |
+| CA-03 / DoD | Implementado en consulta, verificación de integración pendiente | `SchedulingService.availability` | Filtra profesional/especialidad/sede activos y asignados |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-23 — Se alineó el contrato cross-repo a disponibilidad agrupada y bloques con `date` + `startTime`/`endTime`; la ejecución Testcontainers queda pendiente por falta de Docker accesible desde Maven.
 ## Notas y decisiones
 - El tratamiento de concurrencia se prueba definitivamente en las HU de reserva.
 - La afiliación es un dato administrativo opcional y no condiciona búsqueda ni reserva.

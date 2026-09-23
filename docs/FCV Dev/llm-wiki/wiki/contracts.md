@@ -50,6 +50,10 @@ Todos los recursos S3 usan `/api/v1`, JWT access en `Authorization: Bearer` y JS
 
 `GET /api/v1/public/insurance-plans` es público y devuelve únicamente planes activos (`id`, `code`, `name`, `epsId`, `regimeId`) para el formulario de registro previo a la autenticación. Los demás catálogos mantienen autenticación. `POST /api/v1/auth/register` acepta `insurancePlanId` opcional como identificador entero (el cliente puede enviarlo como valor de un control HTML); si es inexistente o inactivo devuelve `400` en formato Problem Details y no deja una cuenta ni afiliación parcial.
 
+La disponibilidad responde agrupada por profesional: cada elemento contiene `professionalId`, `professionalName` y `slots`, donde cada slot contiene `startAt` y `endAt` en formato ISO local (`YYYY-MM-DDTHH:mm:ss`). Para especialidades de 60 minutos solo se entregan ventanas formadas por dos slots consecutivos. La creación y edición de bloques usa `locationId`, `date`, `startTime` y `endTime`; no usa `startAt`/`endAt` como payload de bloque.
+
+La respuesta de `POST /api/v1/appointments` es autoritativa para `id`, `status`, `startAt` y `endAt`. Las etiquetas de profesional, especialidad y sede que muestra el cliente provienen de la selección local ya validada por disponibilidad, no de una segunda fuente simulada.
+
 Errores de validación usan `400`; recursos o relaciones inexistentes usan `404`; rol u ownership usan `403`; slots ocupados, selección inválida o transición no permitida usan `409`. El frontend consume estas rutas directamente, sin BFF, y no guarda citas ni slots como fuente de verdad.
 
 ## DECISIÓN — 2026-09-22 · Corte web de autenticación
