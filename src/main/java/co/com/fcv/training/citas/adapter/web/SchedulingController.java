@@ -24,6 +24,7 @@ class SchedulingController {
     record BlockRequest(@NotNull Long locationId,@NotNull LocalDate date,@NotNull LocalTime startTime,@NotNull LocalTime endTime) {}
     record BlockPatch(Long locationId,LocalDate date,LocalTime startTime,LocalTime endTime) {}
     record AppointmentRequest(@NotNull Long professionalId,@NotNull Long locationId,@NotNull Long specialtyId,@NotNull LocalDate date,@NotNull LocalTime startTime,@Size(max=500) String reason) {}
+    record RescheduleRequest(@NotNull LocalDate date,@NotNull LocalTime startTime,@Size(max=500) String reason) {}
     record DecisionRequest(@NotBlank String decision,@Size(max=500) String reason) {}
     private final SchedulingService scheduling; private final Ports.Passwords passwords;
     SchedulingController(SchedulingService scheduling, Ports.Passwords passwords){this.scheduling=scheduling;this.passwords=passwords;}
@@ -46,6 +47,7 @@ class SchedulingController {
     @PostMapping("/appointments") @PreAuthorize("hasRole('USER')") ResponseEntity<SchedulingService.Appointment> reserve(Authentication a,@Valid @RequestBody AppointmentRequest r){return ResponseEntity.status(HttpStatus.CREATED).body(scheduling.reserve(user(a),r.professionalId(),r.locationId(),r.specialtyId(),LocalDateTime.of(r.date(),r.startTime()),r.reason()));}
     @GetMapping("/appointments/me") @PreAuthorize("hasRole('USER')") List<SchedulingService.UserAppointment> mine(Authentication a,@RequestParam(required=false) String status,@RequestParam(required=false) LocalDate from,@RequestParam(required=false) LocalDate to){return scheduling.myAppointments(user(a),status==null?null:status.trim().toUpperCase(Locale.ROOT),from,to);}
     @PostMapping("/appointments/{id}/cancel") @PreAuthorize("hasRole('USER')") SchedulingService.Appointment cancel(Authentication a,@PathVariable Long id){return scheduling.cancel(user(a),id);}
+    @PostMapping("/appointments/{id}/reschedule-requests") @PreAuthorize("hasRole('USER')") ResponseEntity<SchedulingService.RescheduleRequest> requestReschedule(Authentication a,@PathVariable Long id,@Valid @RequestBody RescheduleRequest r){return ResponseEntity.status(HttpStatus.CREATED).body(scheduling.requestReschedule(user(a),id,LocalDateTime.of(r.date(),r.startTime()),r.reason()));}
     @GetMapping("/admin/appointments/pending-specialized") @PreAuthorize("hasRole('ADMIN')") List<Map<String,Object>> pending(){return scheduling.pending();}
     @PostMapping("/admin/appointments/{id}/decision") @PreAuthorize("hasRole('ADMIN')") SchedulingService.Appointment decide(Authentication a,@PathVariable Long id,@Valid @RequestBody DecisionRequest r){return scheduling.decide(user(a),id,r.decision().trim().toUpperCase(Locale.ROOT),r.reason());}
     private Long user(Authentication a){try{return Long.valueOf(a.getName());}catch(Exception e){throw new IllegalStateException("Principal inválido");}}

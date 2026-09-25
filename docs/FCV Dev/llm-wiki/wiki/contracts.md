@@ -46,6 +46,7 @@ Todos los recursos S3 usan `/api/v1`, JWT access en `Authorization: Bearer` y JS
 | Reserva | `POST /appointments` | USER |
 | Mis citas | `GET /appointments/me?status=&from=&to=` | USER |
 | Cancelar cita | `POST /appointments/{id}/cancel` | USER |
+| Solicitar reprogramación | `POST /appointments/{id}/reschedule-requests` | USER |
 | Solicitudes especializadas | `GET /admin/appointments/pending-specialized`; `POST /admin/appointments/{id}/decision` | ADMIN |
 
 `POST /auth/register` acepta `insurancePlanId` opcional; la afiliación es administrativa y no modifica las reglas de agenda. `POST /appointments` recibe `professionalId`, `locationId`, `specialtyId`, `date`, `startTime` y `reason` opcional. La API deriva la naturaleza general o especializada desde la especialidad: devuelve `APPROVED` para general y `REQUESTED` para especializada. Una decisión ADMIN recibe `APPROVE` o `REJECT`; el rechazo exige `reason`.
@@ -59,6 +60,8 @@ La respuesta de `POST /api/v1/appointments` es autoritativa para `id`, `status`,
 `GET /api/v1/appointments/me` aplica ownership por el usuario del JWT y devuelve `id`, `status`, `startAt`, `endAt`, `durationMinutes`, `professionalName`, `specialtyName`, `locationName` y `rejectionReason` únicamente cuando la cita está `REJECTED`. Acepta filtros opcionales `status`, `from` y `to` (`YYYY-MM-DD`, ambos inclusivos). No expone citas de otros usuarios.
 
 `POST /api/v1/appointments/{id}/cancel` permite a USER cancelar únicamente una cita propia futura cuyo estado no sea terminal. Cambia el estado a `CANCELLED`, libera todos sus slots y registra historial con fuente `USER`. Citas ajenas o no elegibles responden `404` o `409` sin modificar datos.
+
+`POST /api/v1/appointments/{id}/reschedule-requests` recibe `date`, `startTime` y `reason` opcional. Solo acepta una cita propia futura `APPROVED`, conserva profesional/especialidad y crea una solicitud `PENDING`; la nueva franja se retiene mediante `professional_slots.reschedule_request_id`, mientras la cita y sus slots originales permanecen intactos. La decisión ADMIN pertenece a HU-028.
 
 Errores de validación usan `400`; recursos o relaciones inexistentes usan `404`; rol u ownership usan `403`; slots ocupados, selección inválida o transición no permitida usan `409`. El frontend consume estas rutas directamente, sin BFF, y no guarda citas ni slots como fuente de verdad.
 

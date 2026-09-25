@@ -2,7 +2,7 @@
 id: HU-027
 tipo: historia-de-usuario
 titulo: "Solicitar reprogramación"
-estado: Pendiente de aprobación
+estado: Aprobada
 epica: "[[EP-006-ciclo-de-vida-de-citas-y-reprogramaciones]]"
 esfuerzo: Alto
 sprint_sugerido: "Incremento 5"
@@ -46,10 +46,11 @@ Conserva profesional/especialidad; cambiar profesional es una nueva cita. La sol
 ## Evidencia de validación
 | Elemento | Resultado | Evidencia | Observación |
 |---|---|---|---|
-| CA-01 | Pendiente | — | — |
-| CA-02 | Pendiente | — | — |
-| CA-03 / DoD | Pendiente | — | — |
+| CA-01 | Implementado | `POST /api/v1/appointments/{id}/reschedule-requests`; `SchedulingService.requestReschedule` | Retiene la nueva franja como `PENDING`. |
+| CA-02 | Implementado | `appointment_reschedule_requests`; `professional_slots.reschedule_request_id` | La cita y sus slots originales no se modifican. |
+| CA-03 / DoD | Implementado | ownership, estado, disponibilidad y slots consecutivos | Rechaza solicitudes inválidas sin modificar la cita original. |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-25 — Aprobada por solicitud del usuario e implementada como siguiente HU del Incremento 5; la decisión ADMIN queda fuera de alcance y corresponde a HU-028.
 ## Notas y decisiones
 - Se conserva el significado exacto de `PENDING` del catálogo fijo.
