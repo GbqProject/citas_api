@@ -14,7 +14,7 @@ Este mapa convierte el PRD v1 y las restricciones autorizadas en trabajo secuenc
 - Backend requerido: Java 21, Spring Boot 3.5.x, Maven, arquitectura hexagonal, JPA, Flyway, MySQL 8.4 y REST/JSON.
 - Cliente requerido: TypeScript con React o Angular por decidir, consume REST directo; no hay Express ni BFF.
 - Los catálogos fijos se cargan por seed; los datos del laboratorio son sintéticos.
-- Corte S4 implementado parcialmente: disponibilidad agrupada, bloques, reservas, decisiones ADMIN y afiliación opcional están alineados entre `citas-api` y `citas-web`; frontend pasa 13/13 pruebas, lint y build, mientras la integración backend requiere Docker/Testcontainers accesible.
+- Corte S4 cerrado para este incremento: disponibilidad agrupada, bloques, reservas, decisiones ADMIN, afiliación opcional y consulta de citas propias están alineados entre `citas-api` y `citas-web`; el stack local aislado `fq` fue levantado y verificado, y el frontend compiló correctamente. La evidencia histórica de Testcontainers queda conservada para auditoría.
 - El repositorio contiene la aplicación backend y el contrato inicial de identidad. HU-005/006/007 están `Completada` para el corte backend con evidencia de `mvn test` (8 pruebas, 0 fallos); HU-001/002/003 y las épicas EP-001/002 permanecen parciales.
 
 ## Épicas
