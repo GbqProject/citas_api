@@ -44,6 +44,7 @@ Todos los recursos S3 usan `/api/v1`, JWT access en `Authorization: Bearer` y JS
 | Bloques propios | `GET|POST /professional/availability-blocks`; `PATCH|DELETE /professional/availability-blocks/{id}` | PROFESSIONAL |
 | Disponibilidad | `GET /availability?locationId=&specialtyId=&date=&professionalId?` | USER |
 | Reserva | `POST /appointments` | USER |
+| Mis citas | `GET /appointments/me?status=&from=&to=` | USER |
 | Solicitudes especializadas | `GET /admin/appointments/pending-specialized`; `POST /admin/appointments/{id}/decision` | ADMIN |
 
 `POST /auth/register` acepta `insurancePlanId` opcional; la afiliación es administrativa y no modifica las reglas de agenda. `POST /appointments` recibe `professionalId`, `locationId`, `specialtyId`, `date`, `startTime` y `reason` opcional. La API deriva la naturaleza general o especializada desde la especialidad: devuelve `APPROVED` para general y `REQUESTED` para especializada. Una decisión ADMIN recibe `APPROVE` o `REJECT`; el rechazo exige `reason`.
@@ -53,6 +54,8 @@ Todos los recursos S3 usan `/api/v1`, JWT access en `Authorization: Bearer` y JS
 La disponibilidad responde agrupada por profesional: cada elemento contiene `professionalId`, `professionalName` y `slots`, donde cada slot contiene `startAt` y `endAt` en formato ISO local (`YYYY-MM-DDTHH:mm:ss`). Para especialidades de 60 minutos solo se entregan ventanas formadas por dos slots consecutivos. La creación y edición de bloques usa `locationId`, `date`, `startTime` y `endTime`; no usa `startAt`/`endAt` como payload de bloque.
 
 La respuesta de `POST /api/v1/appointments` es autoritativa para `id`, `status`, `startAt` y `endAt`. Las etiquetas de profesional, especialidad y sede que muestra el cliente provienen de la selección local ya validada por disponibilidad, no de una segunda fuente simulada.
+
+`GET /api/v1/appointments/me` aplica ownership por el usuario del JWT y devuelve `id`, `status`, `startAt`, `endAt`, `durationMinutes`, `professionalName`, `specialtyName`, `locationName` y `rejectionReason` únicamente cuando la cita está `REJECTED`. Acepta filtros opcionales `status`, `from` y `to` (`YYYY-MM-DD`, ambos inclusivos). No expone citas de otros usuarios.
 
 Errores de validación usan `400`; recursos o relaciones inexistentes usan `404`; rol u ownership usan `403`; slots ocupados, selección inválida o transición no permitida usan `409`. El frontend consume estas rutas directamente, sin BFF, y no guarda citas ni slots como fuente de verdad.
 

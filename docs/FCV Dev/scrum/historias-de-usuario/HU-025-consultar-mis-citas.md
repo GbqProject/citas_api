@@ -2,7 +2,7 @@
 id: HU-025
 tipo: historia-de-usuario
 titulo: "Consultar mis citas"
-estado: Pendiente de aprobación
+estado: Aprobada
 epica: "[[EP-006-ciclo-de-vida-de-citas-y-reprogramaciones]]"
 esfuerzo: Medio
 sprint_sugerido: "Incremento 5"
@@ -45,10 +45,11 @@ Debe mostrar sede, profesional, especialidad, fecha/hora, duración, estado y mo
 ## Evidencia de validación
 | Elemento | Resultado | Evidencia | Observación |
 |---|---|---|---|
-| CA-01 | Pendiente | — | — |
-| CA-02 | Pendiente | — | — |
-| CA-03 / DoD | Pendiente | — | — |
+| CA-01 | Implementado | `GET /api/v1/appointments/me`; `UserHome` | Lista datos mínimos de citas propias. |
+| CA-02 | Implementado | filtros `status`, `from`, `to`; `UserHome` | Muestra motivo solo para citas rechazadas. |
+| CA-03 / DoD | Implementado | filtro `patient_user_id=?`; `appointmentsApi.mine` | La consulta se limita al usuario autenticado. |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-25 — Aprobada por solicitud del usuario; contrato REST y cliente implementados. Pendiente ejecución de pruebas con Maven/Docker en el entorno actual.
 ## Notas y decisiones
 - Las pantallas se incorporan al cliente sin prescribir framework.
