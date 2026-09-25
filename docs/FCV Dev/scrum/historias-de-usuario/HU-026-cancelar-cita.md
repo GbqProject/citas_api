@@ -2,7 +2,7 @@
 id: HU-026
 tipo: historia-de-usuario
 titulo: "Cancelar cita"
-estado: Pendiente de aprobación
+estado: Aprobada
 epica: "[[EP-006-ciclo-de-vida-de-citas-y-reprogramaciones]]"
 esfuerzo: Alto
 sprint_sugerido: "Incremento 5"
@@ -46,10 +46,11 @@ Una cancelada no se reactiva directamente y debe registrarse historial.
 ## Evidencia de validación
 | Elemento | Resultado | Evidencia | Observación |
 |---|---|---|---|
-| CA-01 | Pendiente | — | — |
-| CA-02 | Pendiente | — | — |
-| CA-03 / DoD | Pendiente | — | — |
+| CA-01 | Implementado | `POST /api/v1/appointments/{id}/cancel`; `SchedulingService.cancel`; `UserHome` | Cambia a `CANCELLED`, libera slots y audita. |
+| CA-02 | Implementado | ownership, estado terminal y fecha futura | Responde sin modificar la cita cuando no es elegible. |
+| CA-03 / DoD | Implementado | transición única a `CANCELLED`; cliente REST | No existe operación de reactivación directa. |
 ## Historial de validación
 - 2026-09-17 — HU creada en estado `Pendiente de aprobación`.
+- 2026-09-25 — Aprobada e implementada como primer incremento del paso 2; pendiente ejecución de la suite completa en el entorno de entrega.
 ## Notas y decisiones
 - El catálogo determina cuáles estados son terminales.

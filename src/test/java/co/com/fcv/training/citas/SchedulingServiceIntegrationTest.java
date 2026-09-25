@@ -40,5 +40,19 @@ class SchedulingServiceIntegrationTest {
         assertThat(scheduling.decide(admin,appointment.id(),"REJECT","Sin disponibilidad clínica").status()).isEqualTo("REJECTED");
         assertThat(scheduling.availability(location,specialty,professional,date)).anyMatch(a -> a.slots().stream().anyMatch(slot -> slot.startAt().equals(LocalDateTime.of(date,LocalTime.of(8,0)))));
     }
+    @Test void cancelsOwnedFutureAppointmentAndReleasesSlotsWithoutReactivation() {
+        String suffix=UUID.randomUUID().toString();
+        Long professional=scheduling.createProfessional("Cancel","Professional","CC","P"+suffix,"cancel-pro-"+suffix+"@example.test","300","hash","PC"+suffix,"LIC"+suffix);
+        Long owner=jdbc.queryForObject("select user_id from professionals where id=?",Long.class,professional);
+        Long specialty=jdbc.queryForObject("select id from specialties where code='MEDICINA_GENERAL'",Long.class); Long location=jdbc.queryForObject("select id from locations where active=true limit 1",Long.class);
+        scheduling.setProfessionalSpecialties(professional,List.of(specialty),specialty); scheduling.setProfessionalLocations(professional,List.of(location));
+        LocalDate date=LocalDate.now().plusDays(3); scheduling.createBlock(owner,location,date,LocalTime.of(11,0),LocalTime.of(11,30));
+        Long patient=user("cancel-patient-"+suffix+"@example.test","C"+suffix);
+        SchedulingService.Appointment appointment=scheduling.reserve(patient,professional,location,specialty,LocalDateTime.of(date,LocalTime.of(11,0)),"Cancel test");
+        assertThat(scheduling.cancel(patient,appointment.id()).status()).isEqualTo("CANCELLED");
+        assertThat(jdbc.queryForObject("select count(*) from professional_slots where appointment_id=?",Integer.class,appointment.id())).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from appointment_status_history h join appointment_statuses s on s.id=h.status_id where h.appointment_id=? and s.code='CANCELLED' and h.change_source='USER'",Integer.class,appointment.id())).isEqualTo(1);
+        assertThatThrownBy(() -> scheduling.cancel(patient,appointment.id())).hasMessageContaining("no se puede cancelar");
+    }
     private Long user(String email,String document) { jdbc.update("insert into users(first_name,last_name,document_type,document_number,email,phone,password_hash,active,email_verified) values ('Test','User','CC',?,?,?,'hash',true,false)",document,email,"300"); return jdbc.queryForObject("select id from users where email=?",Long.class,email); }
 }
