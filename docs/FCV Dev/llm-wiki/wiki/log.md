@@ -21,3 +21,4 @@
 ## 2026-09-30
 
 - HECHO — Se añadió `V4__future_month_availability_seed.sql`, un seed Flyway sintético e idempotente para poblar el mes calendario siguiente con bloques y slots en ambas sedes, más una especialidad demo de 60 minutos.
+- HECHO — `citas-web` ahora invalida y recarga “Mis citas” inmediatamente después de confirmar una reserva; se validó con lint, build y 16 pruebas frontend.
