@@ -18,3 +18,6 @@
 | 2026-09-25 | CIERRE | Ítem 1 / S4 | Por confirmación del usuario se cerró el ítem de verificación del corte: implementación alineada, build frontend exitoso y stack `fq` verificado con API 8081/frontend 5174; se conservan separadas las evidencias históricas de Testcontainers. |
 | 2026-09-25 | IMPLEMENTACIÓN | HU-026, `citas-api`, `citas-web` | Se añadió cancelación USER futura/no terminal con liberación transaccional de slots, historial `USER`, endpoint REST y acción en “Mis citas”. |
 | 2026-09-25 | IMPLEMENTACIÓN | HU-027, `citas-api`, `citas-web` | HU aprobada e implementada: solicitud USER de reprogramación `PENDING`, retención de nueva franja separada de los slots originales y acción “Reprogramar”; la decisión ADMIN queda para HU-028. |
+## 2026-09-30
+
+- HECHO — Se añadió `V4__future_month_availability_seed.sql`, un seed Flyway sintético e idempotente para poblar el mes calendario siguiente con bloques y slots en ambas sedes, más una especialidad demo de 60 minutos.

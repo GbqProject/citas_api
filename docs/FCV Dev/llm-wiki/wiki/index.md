@@ -1,6 +1,6 @@
 # Índice de la LLM Wiki
 
-Última actualización: 2026-09-25. El corte backend de identidad (HU-005/006/007) tiene implementación y contrato REST inicial; HU-011 agrega un endpoint público separado para planes activos durante el registro. El frontend React/Vite integra autenticación y afiliación opcional. S4 documenta el contrato de agenda vigente: disponibilidad agrupada por profesional y bloques con `date` + `startTime`/`endTime`. El despliegue local estándar y el stack aislado `fq` con Docker, Flyway, API y Vite están documentados y verificados en [Despliegue local](deployment.md).
+Última actualización: 2026-09-30. El corte backend de identidad (HU-005/006/007) tiene implementación y contrato REST inicial; HU-011 agrega un endpoint público separado para planes activos durante el registro. El frontend React/Vite integra autenticación y afiliación opcional. S4 documenta el contrato de agenda vigente: disponibilidad agrupada por profesional y bloques con `date` + `startTime`/`endTime`. El despliegue local estándar y el stack aislado `fq` con Docker, Flyway, API, Vite y el seed sintético del mes siguiente están documentados y verificados en [Despliegue local](deployment.md).
 
 ## Lectura recomendada
 

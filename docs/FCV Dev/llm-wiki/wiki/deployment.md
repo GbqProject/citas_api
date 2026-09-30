@@ -105,4 +105,17 @@ Verificar con `docker compose ... ps` y abrir `http://localhost:5174/`. La API s
 
 El override local define `SPRING_DATASOURCE_URL` con `useSSL=false&allowPublicKeyRetrieval=true`. Esta decisión aplica solo al laboratorio `fq`: el certificado TLS local de MySQL tenía una fecha `NotBefore` posterior a la hora del host, lo que impedía arrancar la API. No cambiar la configuración base ni usar este ajuste como política de producción.
 
+### Seed sintético del mes siguiente
+
+La migración Flyway `V4__future_month_availability_seed.sql` crea, al aplicarse, datos sintéticos para el mes calendario siguiente: días hábiles, dos bloques diarios en HIC/ICV y slots de 30 minutos para el profesional demo `FQ-MED-*`. También habilita `CARDIOLOGIA_DEMO` de 60 minutos para probar slots consecutivos. Es idempotente respecto de bloques y slots existentes.
+
+Para aplicarla en el stack `fq`, reinicia la API después de levantar los contenedores; Flyway la ejecuta automáticamente:
+
+```powershell
+docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-api-dev mvn -q clean
+docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-api-dev sh -lc "nohup mvn -q -DskipTests '-Dspring-boot.run.main-class=co.com.fcv.training.citas.CitasApplication' spring-boot:run >/tmp/citas-api.log 2>&1 </dev/null &"
+```
+
+La migración no crea credenciales ni contiene secretos.
+
 Si el navegador muestra `ERR_EMPTY_RESPONSE`, comprobar primero que los procesos `java` y `vite` estén activos dentro de los contenedores; `docker compose up` por sí solo deja los servicios de desarrollo esperando.
