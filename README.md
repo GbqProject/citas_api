@@ -31,3 +31,14 @@ docker compose -f compose.test.yml run --rm api-test mvn test
 ```
 
 El contenedor Maven usa Java 21; Testcontainers crea un MySQL 8.4 temporal. No requiere Java/Maven instalados en el host.
+
+## Workflows n8n FQ
+
+Las URLs de la instancia y de los workflows se documentan como variables en `.env.example`:
+
+- `N8N_FQ_WF_001_URL`: interfaz del workflow de recordatorios.
+- `N8N_FQ_WF_002_URL`: interfaz del workflow de notificaciones.
+- `N8N_FQ_WF_002_WEBHOOK_URL`: endpoint que recibe eventos de cambio de estado.
+- `N8N_FQ_WF_003_URL`: interfaz del resumen operativo diario.
+
+Estas variables contienen únicamente URLs. Las credenciales de API, SMTP y autenticación del webhook se configuran dentro de n8n y no se versionan.

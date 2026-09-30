@@ -21,33 +21,16 @@ HECHO — verificado el 2026-09-25 con Docker Desktop, MySQL 8.4, Java 21, Sprin
 Desde la raíz del workspace:
 
 1. Crear `.env` local a partir de `.env.example`. No versionar `.env`.
-2. Levantar la infraestructura y los contenedores de desarrollo:
+2. Levantar la infraestructura, backend y frontend:
 
    ```powershell
-   docker compose up -d mysql citas-api-dev citas-web-dev
+   docker compose up -d
    docker compose ps
    ```
 
-3. En el contenedor backend, limpiar clases compiladas cuando se hayan cambiado migraciones y arrancar Spring Boot con la clase principal explícita:
+3. Compose inicia Spring Boot y Vite automáticamente. La primera ejecución puede tardar mientras Maven y npm descargan dependencias. Si se modifican migraciones, se puede ejecutar `docker compose exec -T citas-api-dev mvn -q clean` y reiniciar el servicio.
 
-   ```powershell
-   docker compose exec -T citas-api-dev mvn -q clean
-   docker compose exec -T citas-api-dev mvn -q `
-     '-DskipTests' `
-     '-Dspring-boot.run.main-class=co.com.fcv.training.citas.CitasApplication' `
-     spring-boot:run
-   ```
-
-   Flyway debe validar y aplicar `V1` y `V2`. La clase principal explícita es necesaria porque el proyecto contiene más de una clase `main`.
-
-4. En otra terminal, instalar dependencias y arrancar Vite:
-
-   ```powershell
-   docker compose exec -T citas-web-dev npm ci
-   docker compose exec -T citas-web-dev npm run dev -- --host 0.0.0.0
-   ```
-
-5. Verificar:
+4. Verificar:
 
    - API: `http://localhost:8080/`
    - Frontend: `http://localhost:5173/`
@@ -60,10 +43,10 @@ DECISIÓN — Solo si se desea borrar los datos sintéticos persistidos del labo
 
 ```powershell
 docker compose down -v
-docker compose up -d mysql citas-api-dev citas-web-dev
+docker compose up -d
 ```
 
-Esto elimina el volumen MySQL del proyecto. Después se debe repetir el arranque de la API para que Flyway cree el esquema y ejecute los seeds.
+Esto elimina el volumen MySQL del proyecto. Compose vuelve a iniciar automáticamente la API y el frontend para que Flyway cree el esquema y ejecute los seeds.
 
 ## Precauciones conocidas
 
@@ -74,31 +57,20 @@ Esto elimina el volumen MySQL del proyecto. Después se debe repetir el arranque
 
 ## Stack aislado `fq`
 
-HECHO — Para evitar interferencia con otra ejecución local, el workspace también soporta un stack aislado usando el override ignorado `.local/docker-compose.fq.yml`:
+HECHO — Para evitar interferencia con otra ejecución local, el workspace también soporta un stack aislado usando el override versionado `fq-config/docker-compose.yml`:
 
 ```powershell
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml up -d mysql citas-api-dev citas-web-dev
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-api-dev mvn -q clean
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-api-dev mvn -q `
-  '-DskipTests' `
-  '-Dspring-boot.run.main-class=co.com.fcv.training.citas.CitasApplication' `
-  spring-boot:run
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-web-dev npm ci
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-web-dev npm run dev -- --host 0.0.0.0
+docker compose -p fq -f docker-compose.yml -f fq-config/docker-compose.yml up -d
 ```
 
 El perfil publica la API en `http://localhost:8081/`, el frontend en `http://localhost:5174/` y persiste MySQL en `fq_mysql_data`. Sus credenciales locales se documentan en `.local/fq-users.md`, que no se versiona.
 
 ### Arranque verificado del stack `fq`
 
-El override `.local/docker-compose.fq.yml` monta el código de ambos repositorios y deja los contenedores de desarrollo en espera (`tail -f /dev/null`). Después de levantar el stack, iniciar los procesos explícitamente:
+El override `fq-config/docker-compose.yml` monta el código de ambos repositorios y hereda los comandos automáticos de Spring Boot y Vite del Compose base:
 
 ```powershell
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml up -d mysql citas-api-dev citas-web-dev
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-api-dev mvn -q clean
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-api-dev sh -lc "nohup mvn -q -DskipTests '-Dspring-boot.run.main-class=co.com.fcv.training.citas.CitasApplication' spring-boot:run >/tmp/citas-api.log 2>&1 </dev/null &"
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-web-dev npm ci
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-web-dev sh -lc "nohup npm run dev -- --host 0.0.0.0 >/tmp/vite.log 2>&1 </dev/null &"
+docker compose -p fq -f docker-compose.yml -f fq-config/docker-compose.yml up -d
 ```
 
 Verificar con `docker compose ... ps` y abrir `http://localhost:5174/`. La API se expone en `http://localhost:8081/`; una respuesta `401` en una ruta protegida confirma que Spring Boot está atendiendo.
@@ -112,10 +84,10 @@ La migración Flyway `V4__future_month_availability_seed.sql` crea, al aplicarse
 Para aplicarla en el stack `fq`, reinicia la API después de levantar los contenedores; Flyway la ejecuta automáticamente:
 
 ```powershell
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-api-dev mvn -q clean
-docker compose -p fq -f docker-compose.yml -f .local/docker-compose.fq.yml exec -T citas-api-dev sh -lc "nohup mvn -q -DskipTests '-Dspring-boot.run.main-class=co.com.fcv.training.citas.CitasApplication' spring-boot:run >/tmp/citas-api.log 2>&1 </dev/null &"
+docker compose -p fq -f docker-compose.yml -f fq-config/docker-compose.yml exec -T citas-api-dev mvn -q clean
+docker compose -p fq -f docker-compose.yml -f fq-config/docker-compose.yml exec -T citas-api-dev sh -lc "nohup mvn -q -DskipTests '-Dspring-boot.run.main-class=co.com.fcv.training.citas.CitasApplication' spring-boot:run >/tmp/citas-api.log 2>&1 </dev/null &"
 ```
 
 La migración no crea credenciales ni contiene secretos.
 
-Si el navegador muestra `ERR_EMPTY_RESPONSE`, comprobar primero que los procesos `java` y `vite` estén activos dentro de los contenedores; `docker compose up` por sí solo deja los servicios de desarrollo esperando.
+Si el navegador muestra `ERR_EMPTY_RESPONSE`, comprobar `docker compose ... ps` y los logs con `docker compose ... logs citas-api-dev citas-web-dev`.
