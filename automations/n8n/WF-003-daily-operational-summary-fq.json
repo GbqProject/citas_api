@@ -1,0 +1,68 @@
+{
+  "name": "WF-003 daily operational summary FQ",
+  "mcpWorkflowId": "dlMy9vQVR6pCzWsj",
+  "active": false,
+  "nodes": [
+    {
+      "name": "FQ daily schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "days", "daysInterval": 1, "triggerAtHour": 6, "triggerAtMinute": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Query FQ daily appointments",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.CITAS_API_URL }}/api/v1/automation/appointments/daily",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpTemplatedCustomAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Accept", "value": "application/json" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Build FQ operational summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const rows = items.map(item => item.json);\nconst summary = rows.reduce((acc, row) => { const key = row.locationCode + '/' + row.status; acc[key] = (acc[key] || 0) + 1; return acc; }, {});\nreturn [{ json: { generatedAt: new Date().toISOString(), summary } }];"
+      }
+    },
+    {
+      "name": "Send FQ operational summary",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "parameters": {
+        "resource": "email",
+        "operation": "send",
+        "fromEmail": "={{ $env.LAB_FROM_EMAIL }}",
+        "toEmail": "={{ $env.LAB_OPERATIONS_EMAIL }}",
+        "subject": "Resumen operativo diario FQ",
+        "emailFormat": "text",
+        "text": "={{ JSON.stringify($json.summary) }}",
+        "options": { "appendAttribution": false }
+      }
+    }
+  ],
+  "connections": {
+    "FQ daily schedule": { "main": [[{ "node": "Query FQ daily appointments", "type": "main", "index": 0 }]] },
+    "Query FQ daily appointments": { "main": [[{ "node": "Build FQ operational summary", "type": "main", "index": 0 }]] },
+    "Build FQ operational summary": { "main": [[{ "node": "Send FQ operational summary", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

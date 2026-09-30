@@ -1,0 +1,83 @@
+{
+  "name": "WF-002 status notifications FQ",
+  "mcpWorkflowId": "OdMyvYtQY0GuxDFj",
+  "active": false,
+  "nodes": [
+    {
+      "name": "FQ status change webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "citas-fq/status-change",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": { "allowedOrigins": "" }
+      }
+    },
+    {
+      "name": "Validate FQ event",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.body.status }}",
+              "operator": { "type": "string", "operation": "regex" },
+              "rightValue": "^(APPROVED|REJECTED|CANCELLED)$"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "name": "Notify FQ patient",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "parameters": {
+        "resource": "email",
+        "operation": "send",
+        "fromEmail": "={{ $env.LAB_FROM_EMAIL }}",
+        "toEmail": "={{ $json.body.patientEmail }}",
+        "subject": "Actualización de tu cita",
+        "emailFormat": "text",
+        "text": "=La cita {{ $json.body.appointmentId }} cambió a {{ $json.body.status }}.",
+        "options": { "appendAttribution": false }
+      }
+    },
+    {
+      "name": "FQ accepted response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { accepted: true, eventId: $json.body.eventId, appointmentId: $json.body.appointmentId } }}",
+        "options": { "responseCode": 200 }
+      }
+    },
+    {
+      "name": "FQ rejected response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { accepted: false, reason: \"INVALID_EVENT\" } }}",
+        "options": { "responseCode": 400 }
+      }
+    }
+  ],
+  "connections": {
+    "FQ status change webhook": { "main": [[{ "node": "Validate FQ event", "type": "main", "index": 0 }]] },
+    "Validate FQ event": {
+      "main": [
+        [{ "node": "Notify FQ patient", "type": "main", "index": 0 }],
+        [{ "node": "FQ rejected response", "type": "main", "index": 0 }]
+      ]
+    },
+    "Notify FQ patient": { "main": [[{ "node": "FQ accepted response", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

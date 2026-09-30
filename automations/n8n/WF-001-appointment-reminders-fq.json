@@ -1,0 +1,57 @@
+{
+  "name": "WF-001 appointment reminders FQ",
+  "mcpWorkflowId": "4G7x7kZ2haFqGhcz",
+  "active": false,
+  "nodes": [
+    {
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "hours", "hoursInterval": 1 }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Query approved appointments FQ",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.CITAS_API_URL }}/api/v1/automation/appointments/upcoming",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpTemplatedCustomAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Accept", "value": "application/json" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Send FQ appointment reminder",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "parameters": {
+        "resource": "email",
+        "operation": "send",
+        "fromEmail": "={{ $env.LAB_FROM_EMAIL }}",
+        "toEmail": "={{ $json.patientEmail }}",
+        "subject": "Recordatorio de cita",
+        "emailFormat": "text",
+        "text": "=Tu cita aprobada está programada para {{ $json.scheduledStartAt }}.",
+        "options": { "appendAttribution": false }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": { "main": [[{ "node": "Query approved appointments FQ", "type": "main", "index": 0 }]] },
+    "Query approved appointments FQ": { "main": [[{ "node": "Send FQ appointment reminder", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}
